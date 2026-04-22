@@ -1,0 +1,135 @@
+-- 1. جدول المستخدمين (العملاء، الفنيين، الإدارة)
+CREATE TABLE IF NOT EXISTS User (
+    UserID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Phone VARCHAR(20) UNIQUE NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    UserType ENUM('Client', 'Technician', 'Admin') NOT NULL DEFAULT 'Client'
+);
+
+-- 2. جدول أنواع الخدمات
+CREATE TABLE IF NOT EXISTS ServiceType (
+    serviceId INT AUTO_INCREMENT PRIMARY KEY,
+    serviceName VARCHAR(100) NOT NULL,
+    price DECIMAL(10, 2),
+    description TEXT,
+    lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 3. جدول المواقع الجغرافية
+CREATE TABLE IF NOT EXISTS Location (
+    locationId INT AUTO_INCREMENT PRIMARY KEY,
+    addressText VARCHAR(255),
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8)
+);
+
+-- 4. جدول طلبات الصيانة (محور النظام)
+CREATE TABLE IF NOT EXISTS ServiceRequest (
+    requestId INT AUTO_INCREMENT PRIMARY KEY,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('Pending', 'Accepted', 'Completed', 'Canceled') DEFAULT 'Pending',
+    clientId INT,
+    technicianId INT NULL,
+    serviceId INT,
+    locationId INT,
+    FOREIGN KEY (clientId) REFERENCES User(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (technicianId) REFERENCES User(UserID) ON DELETE SET NULL,
+    FOREIGN KEY (serviceId) REFERENCES ServiceType(serviceId) ON DELETE CASCADE,
+    FOREIGN KEY (locationId) REFERENCES Location(locationId) ON DELETE SET NULL
+);
+
+-- 5. جدول الشكاوى
+CREATE TABLE IF NOT EXISTS Complaint (
+    complaintId INT AUTO_INCREMENT PRIMARY KEY,
+    description TEXT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('Open', 'Resolved', 'Closed') DEFAULT 'Open',
+    requestId INT,
+    FOREIGN KEY (requestId) REFERENCES ServiceRequest(requestId) ON DELETE CASCADE
+);
+
+-- 6. جدول التقييمات
+CREATE TABLE IF NOT EXISTS Evaluation (
+    evaluationId INT AUTO_INCREMENT PRIMARY KEY,
+    serviceRating INT CHECK (serviceRating BETWEEN 1 AND 5),
+    technicianRating INT CHECK (technicianRating BETWEEN 1 AND 5),
+    evaluatorUserId INT,
+    requestId INT,
+    FOREIGN KEY (evaluatorUserId) REFERENCES User(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (requestId) REFERENCES ServiceRequest(requestId) ON DELETE CASCADE
+);
+
+
+
+INSERT INTO ServiceType (serviceName, price, description) VALUES 
+('خدمة صيانة كهربائية', 150.00, 'تأسيس وتمديدات وصيانة أعطال الكهرباء'),
+('خدمة صيانة سباكة', 120.00, 'كشف تسربات وتركيب أدوات صحية'),
+('خدمة صيانة تكييف', 200.00, 'تنظيف وصيانة وتعبئة فريون للمكيفات');
+
+
+
+-- إيقاف فحص القيود مؤقتاً
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- 1. حذف الجداول الفرعية المرتبطة أولاً
+DROP TABLE IF EXISTS evaluation;
+DROP TABLE IF EXISTS complaint;
+
+-- 2. الآن يمكننا حذف جدول الطلبات بأمان
+DROP TABLE IF EXISTS servicerequest;
+DROP TABLE IF EXISTS ServiceRequest;
+
+-- 3. إنشاء جدول الطلبات بالهيكلة الصحيحة
+CREATE TABLE ServiceRequest (
+    requestId INT AUTO_INCREMENT PRIMARY KEY,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('Pending', 'Accepted', 'Completed', 'Canceled') DEFAULT 'Pending',
+    clientId INT,
+    technicianId INT NULL,
+    serviceId INT,
+    locationId INT,
+    FOREIGN KEY (clientId) REFERENCES User(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (technicianId) REFERENCES User(UserID) ON DELETE SET NULL,
+    FOREIGN KEY (serviceId) REFERENCES ServiceType(serviceId) ON DELETE CASCADE,
+    FOREIGN KEY (locationId) REFERENCES Location(locationId) ON DELETE SET NULL
+);
+
+-- 4. إعادة إنشاء جدول الشكاوى
+CREATE TABLE Complaint (
+    complaintId INT AUTO_INCREMENT PRIMARY KEY,
+    description TEXT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('Open', 'Resolved', 'Closed') DEFAULT 'Open',
+    requestId INT,
+    FOREIGN KEY (requestId) REFERENCES ServiceRequest(requestId) ON DELETE CASCADE
+);
+
+-- 5. إعادة إنشاء جدول التقييمات
+CREATE TABLE Evaluation (
+    evaluationId INT AUTO_INCREMENT PRIMARY KEY,
+    serviceRating INT CHECK (serviceRating BETWEEN 1 AND 5),
+    technicianRating INT CHECK (technicianRating BETWEEN 1 AND 5),
+    evaluatorUserId INT,
+    requestId INT,
+    FOREIGN KEY (evaluatorUserId) REFERENCES User(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (requestId) REFERENCES ServiceRequest(requestId) ON DELETE CASCADE
+);
+
+-- إعادة تشغيل فحص القيود
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+
+INSERT INTO ServiceType (serviceName, price, description) VALUES 
+('خدمة صيانة كهربائية', 150.00, 'تأسيس وتمديدات وصيانة أعطال الكهرباء'),
+('خدمة صيانة سباكة', 120.00, 'كشف تسربات وتركيب أدوات صحية'),
+('خدمة صيانة تكييف', 200.00, 'تنظيف وصيانة وتعبئة فريون للمكيفات');
+
+إضافة ادمن للموقع
+INSERT INTO User (Name, Phone, Password, UserType, Status) 
+VALUES ('المدير العام', '0508859555', 'admin123', 'Admin', 'Active');
+
+INSERT INTO User (Name, Phone, Password, UserType, Status) 
+VALUES ('المدير العام', '0508859555', '$2b$10$X7vH8V5m9QkL9JpZ6G7yU.O1u7H2n8B9D0A1C2E3F4G5H6I7J8K9L', 'Admin', 'Active');
