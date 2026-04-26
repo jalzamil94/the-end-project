@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>اتصل بنا - شركة الزامل</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div id="branding">
+            <h1>الزامل <span style="color:var(--accent)">للصيانة</span></h1>
+        </div>
+        
+        <nav style="display: flex; align-items: center; gap: 20px;">
+            <ul class="nav-links" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0;">
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="services.html">الخدمات</a></li>
+                <li><a href="about.html">من نحن</a></li>
+                <li><a href="contact.html">اتصل بنا</a></li>
+            </ul>
+            
+            <div id="auth-section" style="display: flex; gap: 15px; align-items: center;">
+                </div>
+        </nav>
+    </div>
+</header>
+
+    <main class="container">
+        <div class="glass-form-card">
+            <h2 style="text-align: center; margin-bottom: 30px; color: var(--primary);">تواصل معنا</h2>
+            <form action="/send-message" method="POST">
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:var(--primary);">الاسم الكامل</label>
+                <input type="text" name="name" placeholder="أدخل اسمك الكريم" required>
+                
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:var(--primary);">رقم الجوال</label>
+                <input type="text" name="phone" placeholder="05xxxxxxxx" required>
+                
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:var(--primary);">نوع الصيانة المطلوبة</label>
+                <input type="text" name="service" placeholder="مثال: سباكة، كهرباء، تكييف...">
+                
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:var(--primary);">رسالتك أو المشكلة</label>
+                <textarea name="message" rows="4" placeholder="اشرح لنا المشكلة باختصار..." required></textarea>
+                
+                <button type="submit">إرسال الطلب الآن</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>شركة الزامل للخدمات المنزلية المتكاملة ©️ 2026</p>
+    </footer>
+</body>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // جلب معلومات الجلسة من السيرفر
+    fetch('/api/user-info?t=' + new Date().getTime())
+        .then(res => res.json())
+        .then(data => {
+            const authSection = document.getElementById('auth-section');
+            if (!authSection) return;
+
+            // إذا كان المستخدم مسجل دخول (يتعرف عليه السيرفر عبر الـ Session)
+            if (data.name && data.name !== 'ضيف') {
+                let dynamicLinks = '';
+                
+                // روابط مخصصة حسب نوع الحساب
+                if (data.userType === 'Client') {
+                    dynamicLinks = `<a href="my-requests.html" style="color: var(--primary); font-weight: bold; text-decoration: none;">طلباتي</a>`;
+                } else if (data.userType === 'Technician') {
+                    dynamicLinks = `<a href="technician.html" style="color: var(--primary); font-weight: bold; text-decoration: none;">المهام الفنية</a>`;
+                } else if (data.userType === 'Admin') {
+                    dynamicLinks = `<a href="admin.html" style="color: var(--primary); font-weight: bold; text-decoration: none;">لوحة الإدارة</a>`;
+                }
+
+                // عرض الاسم وزر الخروج
+                authSection.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:15px; border-right: 2px solid var(--border-color); padding-right: 15px;">
+                        <span style="color: var(--accent); font-weight: bold;">مرحباً، ${data.name} ✨</span>
+                        ${dynamicLinks}
+                        <a href="/auth/logout" style="color: #ef4444; border: 1px solid #ef4444; padding: 5px 15px; border-radius: 8px; text-decoration: none; transition: 0.3s;">خروج</a>
+                    </div>
+                `;
+            } else {
+                // إذا كان زائر جديد (غير مسجل دخول) يعرض له الأزرار المفقودة
+                authSection.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:15px; border-right: 2px solid var(--border-color); padding-right: 15px;">
+                        <a href="login.html" style="color: var(--primary); font-weight: bold; text-decoration: none;">دخول</a>
+                        <a href="signup.html" class="btn" style="padding: 8px 20px; font-size: 1rem; color: white !important; margin: 0;">حساب جديد</a>
+                    </div>
+                `;
+            }
+        })
+        .catch(err => console.error("خطأ في التحقق من الجلسة:", err));
+});
+</script>
+</html>
