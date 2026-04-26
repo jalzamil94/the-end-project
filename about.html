@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>من نحن - شركة fix</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* إضافة هذا الجزء لضمان خلفية بيضاء وتناسق الشعار */
+        header {
+            background-color: #ffffff;
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 90px;">
+        
+        <div id="branding">
+            <a href="index.html" style="
+                display: block;
+                width: 180px; 
+                height: 90px; 
+                background-image: url('FullLogo.jpg.jpeg');
+                background-size: 140%; 
+                background-position: center center;
+                background-repeat: no-repeat;
+                mix-blend-mode: multiply;
+            " title="الرئيسية"></a>
+        </div>
+        
+        <nav style="display: flex; align-items: center; gap: 20px;">
+            <ul class="nav-links" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0;">
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="services.html">الخدمات</a></li>
+                <li><a href="about.html">من نحن</a></li>
+                <li><a href="contact.html">اتصل بنا</a></li>
+            </ul>
+            
+            <div id="auth-section" style="display: flex; gap: 15px; align-items: center;">
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <main class="container" style="padding-top: 80px; padding-bottom: 80px;">
+        <h2 style="font-size: 3.5rem; margin-bottom: 15px; color: var(--primary); text-align: center;">قصة النجاح والابتكار</h2>
+        <p style="color: var(--text-muted); font-size: 1.3rem; max-width: 800px; margin: 0 auto 50px auto; text-align: center;">لا نقدم مجرد إصلاحات، بل نصيغ معايير جديدة للجودة في منزلك.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 50px; align-items: center;">
+            <div class="glass-form-card" style="margin: 0; max-width: 100%;">
+                <h3 style="color: var(--primary); font-size: 1.8rem; margin-bottom: 20px; border-right: 4px solid var(--accent); padding-right: 15px;">رؤيتنا ورسالتنا</h3>
+                <p style="line-height: 1.8; color: var(--text-muted);">في شركة fix للخدمات المتكاملة، نؤمن بأن الصيانة ليست مجرد إصلاح، بل هي فن الحفاظ على سلامة ورفاهية منزلك. رسالتنا هي تقديم حلول سباكة وكهرباء وتكييف ذكية تتجاوز التوقعات من خلال الاحترافية المطلقة والالتزام بأعلى معايير السلامة العالمية.</p>
+
+                <h3 style="color: var(--primary); margin-top: 30px; margin-bottom: 15px;">لماذا شركة fix؟</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="background: #f8fafc; margin-bottom: 10px; padding: 15px; border-radius: 12px; border-right: 3px solid var(--accent); color: var(--text-dark);"><strong>خبرة معتمدة:</strong> فريقنا يضم نخبة من المهندسين والفنيين المرخصين.</li>
+                    <li style="background: #f8fafc; margin-bottom: 10px; padding: 15px; border-radius: 12px; border-right: 3px solid var(--accent); color: var(--text-dark);"><strong>تكنولوجيا حديثة:</strong> نستخدم أحدث أجهزة الفحص والتشخيص لضمان الدقة.</li>
+                    <li style="background: #f8fafc; margin-bottom: 10px; padding: 15px; border-radius: 12px; border-right: 3px solid var(--accent); color: var(--text-dark);"><strong>الشفافية المطلقة:</strong> تسعير واضح، وعقود موثقة، ولا وجود للرسوم الخفية.</li>
+                </ul>
+            </div>
+
+            <div>
+                <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=800&q=80" alt="فريق fix" style="width: 100%; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid var(--border-color);">
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>شركة fix للخدمات المنزلية المتكاملة ©️ 2026. جميع الحقوق محفوظة.</p>
+    </footer>
+
+</body>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // جلب معلومات الجلسة من السيرفر
+    fetch('/api/user-info?t=' + new Date().getTime())
+        .then(res => res.json())
+        .then(data => {
+            const authSection = document.getElementById('auth-section');
+            if (!authSection) return;
+
+            // إذا كان المستخدم مسجل دخول (يتعرف عليه السيرفر عبر الـ Session)
+            if (data.name && data.name !== 'ضيف') {
+                let dynamicLinks = '';
+                
+                // روابط مخصصة حسب نوع الحساب
+                if (data.userType === 'Client') {
+                    dynamicLinks = `<a href="my-requests.html" style="color: var(--primary); font-weight: bold; text-decoration: none;">طلباتي</a>`;
+                } else if (data.userType === 'Technician') {
+                    dynamicLinks = `<a href="technician.html" style="color: var(--primary); font-weight: bold; text-decoration: none;">المهام الفنية</a>`;
+                } else if (data.userType === 'Admin') {
+                    dynamicLinks = `<a href="admin.html" style="color: var(--primary); font-weight: bold; text-decoration: none;">لوحة الإدارة</a>`;
+                }
+
+                // عرض الاسم وزر الخروج
+                authSection.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:15px; border-right: 2px solid var(--border-color); padding-right: 15px;">
+                        <span style="color: var(--accent); font-weight: bold;">مرحباً، ${data.name} ✨</span>
+                        ${dynamicLinks}
+                        <a href="/auth/logout" style="color: #ef4444; border: 1px solid #ef4444; padding: 5px 15px; border-radius: 8px; text-decoration: none; transition: 0.3s;">خروج</a>
+                    </div>
+                `;
+            } else {
+                // إذا كان زائر جديد (غير مسجل دخول) يعرض له الأزرار المفقودة
+                authSection.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:15px; border-right: 2px solid var(--border-color); padding-right: 15px;">
+                        <a href="login.html" style="color: var(--primary); font-weight: bold; text-decoration: none;">دخول</a>
+                        <a href="signup.html" class="btn" style="padding: 8px 20px; font-size: 1rem; color: white !important; margin: 0;">حساب جديد</a>
+                    </div>
+                `;
+            }
+        })
+        .catch(err => console.error("خطأ في التحقق من الجلسة:", err));
+});
+</script>
+</html>
