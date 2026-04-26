@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>طلباتي - شركة fix</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ضمان خلفية بيضاء للهيدر لتناسق الشعار */
+        header {
+            background-color: #ffffff;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .requests-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 25px;
+            max-width: 900px;
+            margin: 50px auto;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; color: white; }
+        th, td { padding: 15px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { color: var(--accent); font-weight: bold; }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .status-pending { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        .status-accepted { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    </style>
+</head>
+<body>
+
+   <header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 90px;">
+        
+        <div id="branding">
+            <a href="index.html" style="
+                display: block;
+                width: 180px; 
+                height: 90px; 
+                background-image: url('FullLogo.jpg.jpeg');
+                background-size: 140%; 
+                background-position: center center;
+                background-repeat: no-repeat;
+                mix-blend-mode: multiply;
+            " title="الرئيسية"></a>
+        </div>
+        
+        <nav style="display: flex; align-items: center; gap: 20px;">
+            <ul class="nav-links" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0;">
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="services.html">الخدمات</a></li>
+                <li><a href="about.html">من نحن</a></li>
+                <li><a href="contact.html">اتصل بنا</a></li>
+            </ul>
+            
+            <div id="auth-section" style="display: flex; gap: 15px; align-items: center;">
+                </div>
+        </nav>
+    </div>
+</header>
+
+    <main class="container">
+        <div class="requests-card">
+            <h2 style="border-right: 4px solid var(--accent); padding-right: 15px; color: var(--primary);">سجل طلباتي</h2>
+            
+            <div id="requests-container">
+                <p style="text-align: center; color: var(--accent); padding: 20px;">جاري تحميل الطلبات...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('requests-container');
+
+            // طلب البيانات من المسار الذي أضفناه في السيرفر سابقاً
+            fetch('/api/my-requests')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        container.innerHTML = '<p style="text-align:center; opacity:0.6; padding:40px; color: var(--text-dark);">لا يوجد لديك طلبات سابقة حالياً.</p>';
+                        return;
+                    }
+
+                    let tableHtml = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>رقم الطلب</th>
+                                    <th>نوع الخدمة</th>
+                                    <th>الحالة</th>
+                                    <th>تاريخ الطلب</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    data.forEach(req => {
+                        const date = new Date(req.createdAt).toLocaleDateString('ar-SA');
+                        const statusClass = req.status === 'Pending' ? 'status-pending' : 'status-accepted';
+                        const statusText = req.status === 'Pending' ? 'قيد الانتظار' : 'تم القبول';
+
+                        tableHtml += `
+                            <tr>
+                                <td style="color: var(--text-dark);">#${req.requestId}</td>
+                                <td style="color: var(--text-dark);">${req.serviceName}</td>
+                                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                                <td style="color: var(--text-dark);">${date}</td>
+                            </tr>
+                        `;
+                    });
+
+                    tableHtml += '</tbody></table>';
+                    container.innerHTML = tableHtml;
+                })
+                .catch(err => {
+                    console.error("خطأ:", err);
+                    container.innerHTML = '<p style="color:red; text-align:center;">حدث خطأ أثناء تحميل البيانات.</p>';
+                });
+        });
+    </script>
+</body>
+</html>
