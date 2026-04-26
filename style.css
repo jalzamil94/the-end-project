@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap');
+
+:root {
+    --primary: #1e40af;
+    --accent: #3b82f6;
+    --bg-card: rgba(255, 255, 255, 0.95); 
+    --text-dark: #1e293b;
+    --text-muted: #475569;
+    --border-color: rgba(203, 213, 225, 0.6);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif !important; }
+
+body {
+   
+    background: linear-gradient(rgba(241, 245, 249, 0.85), rgba(203, 213, 225, 0.9)), 
+                url('https://img.freepik.com/free-photo/male-electrician-works-switchboard-with-electrical-connecting-cable_169016-15090.jpg?w=1380') center/cover fixed !important;
+    color: var(--text-dark) !important;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    direction: rtl;
+}
+
+.container { width: 90%; max-width: 1200px; margin: 0 auto; }
+
+
+header { background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(10px) !important; border-bottom: 1px solid var(--border-color) !important; padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
+header .container { display: flex; justify-content: space-between; align-items: center; }
+#branding h1 { color: var(--primary) !important; font-size: 26px; }
+#branding h1 span { color: var(--accent) !important; }
+.nav-links { display: flex; gap: 20px; list-style: none; align-items: center; }
+.nav-links a { color: var(--text-dark) !important; font-weight: 600 !important; text-decoration: none; transition: 0.3s; }
+.nav-links a:hover, .nav-links .current a { color: var(--accent) !important; }
+
+
+.glass-form-card, .service-form-card, .glass-auth-card {
+    background: var(--bg-card) !important;
+    backdrop-filter: blur(15px) !important; 
+    border: 1px solid rgba(255,255,255,0.5) !important;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+    border-radius: 20px !important;
+    padding: 40px;
+    margin: 60px auto;
+    max-width: 500px;
+    text-align: right;
+}
+
+
+input, select, textarea { width: 100%; background: #ffffff !important; border: 1px solid var(--border-color) !important; color: var(--text-dark) !important; border-radius: 12px !important; padding: 14px !important; margin-bottom: 20px; font-size: 1rem; transition: 0.3s;}
+input:focus, select:focus, textarea:focus { border-color: var(--accent) !important; outline: none !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;}
+
+.btn, button[type="submit"] { display: block; width: 100%; background: var(--primary) !important; color: #ffffff !important; border: none !important; border-radius: 12px !important; padding: 15px !important; font-weight: bold; font-size: 1.1rem; cursor: pointer !important; transition: 0.3s; }
+.btn:hover, button[type="submit"]:hover { background: var(--accent) !important; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(30, 64, 175, 0.2) !important;}
+
+
+.service-option { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.7) !important; border: 1px solid var(--border-color); padding: 20px; border-radius: 15px; margin-bottom: 15px; cursor: pointer; transition: 0.3s; }
+.service-option:hover { border-color: var(--accent); background: #ffffff !important; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.05) !important;}
+
+footer { background: rgba(255, 255, 255, 0.95) !important; color: var(--text-muted) !important; border-top: 1px solid var(--border-color) !important; margin-top: auto; padding: 30px; text-align: center; backdrop-filter: blur(10px) !important;}
