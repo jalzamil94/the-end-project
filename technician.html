@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة تحكم الفني - شركة fix</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ضمان خلفية بيضاء للهيدر لتناسق الشعار */
+        header {
+            background-color: #ffffff;
+            position: relative;
+            z-index: 10;
+        }
+
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 30px; margin-top: 40px; }
+        .request-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+        .my-task { border-right: 5px solid #3b82f6; background: rgba(59, 130, 246, 0.05); }
+        .available-task { border-right: 5px solid var(--accent); }
+        .section-title { color: var(--accent); margin-bottom: 20px; border-right: 4px solid var(--accent); padding-right: 15px; }
+        .contact-info { margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 90px;">
+            
+            <div id="branding">
+                <a href="index.html" style="
+                    display: block;
+                    width: 180px; 
+                    height: 90px; 
+                    background-image: url('FullLogo.jpg.jpeg');
+                    background-size: 140%; 
+                    background-position: center center;
+                    background-repeat: no-repeat;
+                    mix-blend-mode: multiply;
+                " title="الرئيسية"></a>
+            </div>
+
+            <nav style="display: flex; align-items: center; gap: 20px;">
+                <span style="color: var(--primary); font-weight: bold;">لوحة إدارة الطلبات</span>
+                <a href="/auth/logout" style="color: #ef4444; border: 1px solid #ef4444; padding: 5px 15px; border-radius: 8px; text-decoration: none; transition: 0.3s;">تسجيل خروج</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="padding: 40px 0;">
+        <h2 id="welcome-msg">مرحباً بك..</h2>
+
+        <div class="dashboard-grid">
+            <section>
+                <h3 class="section-title">مهامي الحالية (بيانات العميل متاحة هنا 📞)</h3>
+                <div id="my-tasks-container"></div>
+            </section>
+
+            <section>
+                <h3 class="section-title">طلبات صيانة جديدة متاحة</h3>
+                <div id="available-requests-container"></div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // التحقق من هوية الفني
+        fetch('/api/user-info').then(res => res.json()).then(user => {
+            if(user.userType !== 'Technician') window.location.href = 'login.html';
+            document.getElementById('welcome-msg').innerText = `مرحباً بك يا فني: ${user.name} ✨`;
+        });
+
+        function loadDashboard() {
+            // 1. تحميل الطلبات المتاحة للقبول (بدون رقم الجوال للخصوصية)
+            fetch('/api/technician/available-requests')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('available-requests-container');
+                    container.innerHTML = data.length === 0 ? '<p>لا توجد طلبات جديدة حالياً.</p>' : '';
+                    data.forEach(req => {
+                        container.innerHTML += `
+                            <div class="request-card available-task">
+                                <div>
+                                    <h4 style="color:var(--accent)">${req.serviceName}</h4>
+                                    <p>العميل: ${req.clientName}</p>
+                                    <small style="color:#888">الرقم مخفي حتى قبول المهمة</small>
+                                </div>
+                                <button onclick="acceptTask(${req.requestId})" class="btn-signup" style="padding:8px 20px;">قبول المهمة</button>
+                            </div>
+                        `;
+                    });
+                });
+
+            // 2. تحميل مهام الفني الخاصة (مع إظهار رقم الجوال للتواصل)
+            fetch('/api/technician/my-tasks')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('my-tasks-container');
+                    container.innerHTML = data.length === 0 ? '<p>لا توجد مهام قيد التنفيذ حالياً.</p>' : '';
+                    data.forEach(req => {
+                        container.innerHTML += `
+                            <div class="request-card my-task">
+                                <div>
+                                    <h4 style="color:#3b82f6">${req.serviceName}</h4>
+                                    <div class="contact-info">
+                                        <p>👤 <strong>العميل:</strong> ${req.clientName}</p>
+                                        <p>📞 <strong>الجوال:</strong> <a href="tel:${req.clientPhone}" style="color:var(--accent); text-decoration:none;">${req.clientPhone}</a></p>
+                                    </div>
+                                </div>
+                                <button onclick="completeTask(${req.requestId})" style="background:#10b981; color:white; border:none; padding:12px 25px; border-radius:10px; cursor:pointer; font-weight:bold;">تم الإنجاز ✅</button>
+                            </div>
+                        `;
+                    });
+                });
+        }
+
+        function acceptTask(requestId) {
+            if(!confirm("هل أنت متأكد من قبول هذه المهمة والالتزام بتنفيذها؟")) return;
+            fetch('/api/technician/accept-request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ requestId })
+            }).then(() => loadDashboard());
+        }
+
+        function completeTask(requestId) {
+            if(!confirm("هل أكملت العمل بالفعل؟ سيتم أرشفة الطلب كمنجز.")) return;
+            fetch('/api/technician/complete-request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ requestId })
+            }).then(() => loadDashboard());
+        }
+
+        loadDashboard();
+        function loadDashboard() {
+    // تحميل الطلبات المتاحة
+    fetch('/api/technician/available-requests')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('available-requests-container');
+            container.innerHTML = data.length === 0 ? '<p>لا توجد طلبات جديدة حالياً.</p>' : '';
+            data.forEach(req => {
+                container.innerHTML += `
+                    <div class="request-card available-task">
+                        <div>
+                            <h4 style="color:var(--accent)">${req.serviceName}</h4>
+                            <p>العميل: ${req.clientName}</p>
+                            <small style="color:#888">الرقم مخفي حتى قبول المهمة</small>
+                        </div>
+                        <button onclick="acceptTask(${req.requestId})" class="btn-signup" style="padding:8px 20px;">قبول المهمة</button>
+                    </div>`;
+            });
+        });
+
+    // تحميل مهامي الحالية مع رابط الخريطة
+    fetch('/api/technician/my-tasks')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('my-tasks-container');
+            container.innerHTML = data.length === 0 ? '<p>لا توجد مهام قيد التنفيذ حالياً.</p>' : '';
+            data.forEach(req => {
+                // نتحقق إذا كان الموقع موجوداً قبل عرض الرابط
+                const locationLink = (req.latitude && req.longitude) 
+                    ? `<a href="https://www.google.com/maps?q=${req.latitude},${req.longitude}" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:bold;">📍 فتح الموقع على الخريطة</a>`
+                    : `<span style="color:#888">📍 الموقع غير محدد</span>`;
+
+                container.innerHTML += `
+                    <div class="request-card my-task">
+                        <div>
+                            <h4 style="color:#3b82f6">${req.serviceName}</h4>
+                            <div class="contact-info">
+                                <p>👤 <strong>العميل:</strong> ${req.clientName}</p>
+                                <p>📞 <strong>الجوال:</strong> <a href="tel:${req.clientPhone}" style="color:var(--accent); text-decoration:none;">${req.clientPhone}</a></p>
+                                <p>${locationLink}</p>
+                            </div>
+                        </div>
+                        <button onclick="completeTask(${req.requestId})" style="background:#10b981; color:white; border:none; padding:12px 25px; border-radius:10px; cursor:pointer; font-weight:bold;">تم الإنجاز ✅</button>
+                    </div>`;
+            });
+        });
+}
+    </script>
+</body>
+</html>
